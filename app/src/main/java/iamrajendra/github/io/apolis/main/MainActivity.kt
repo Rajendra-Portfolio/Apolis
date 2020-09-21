@@ -4,13 +4,21 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.paging.DataSource
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.iamrajendra.newsdragger.utils.getViewModel
 import com.iamrajendra.newsdragger.utils.observeNotNull
 import iamrajendra.github.io.apolis.R
+import iamrajendra.github.io.apolis.api.RockyResponse
 import iamrajendra.github.io.apolis.di.base.BaseActivity
 import iamrajendra.github.io.apolis.main.adapter.Adapter
 import iamrajendra.github.io.apolis.model.ViewState
+import iamrajendra.github.io.apolis.pagination.PaginationAdapter
+import iamrajendra.github.io.apolis.pagination.PostsDataSource
+import kotlinx.coroutines.Dispatchers
 
 class MainActivity : BaseActivity() {
     private val mainViewModel by lazy { getViewModel<MainViewModel>() }
@@ -20,7 +28,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         list = findViewById(R.id.list)
-        val adapter = Adapter ();
+        /*val adapter = Adapter ();
         list?.adapter = adapter
 
 
@@ -46,6 +54,30 @@ class MainActivity : BaseActivity() {
 
 
         })
+*/
+        var  a  = PaginationAdapter()
+
+        list?.adapter =a
+        val config = PagedList.Config.Builder()
+            .setPageSize(30)
+            .setEnablePlaceholders(false)
+            .build()
+        initializedPagedListBuilder(config).build().observe(this, Observer {
+
+            a.submitList(it)
+        })
+
+    }
+
+    private fun initializedPagedListBuilder(config: PagedList.Config):
+            LivePagedListBuilder<Int, RockyResponse.Results> {
+
+        val dataSourceFactory = object : DataSource.Factory<Int, RockyResponse.Results>() {
+            override fun create(): DataSource<Int, RockyResponse.Results> {
+                return PostsDataSource(mainViewModel.getRepository())
+            }
+        }
+        return LivePagedListBuilder<Int, RockyResponse.Results>(dataSourceFactory, config)
     }
 
     companion object{

@@ -13,15 +13,32 @@ import javax.inject.Inject
 class RockyMorthyRepository  @Inject constructor(
     private val rockyMorthy: RockyMorthy
 ){
-    /**
-     * Fetch the news articles from database if exist else fetch from web
-     * and persist them in the database
-     */
+
+    init {
+
+    }
+
+
+
     fun getMorphyData(): Flow<ViewState<List<RockyResponse.Results>>> {
         return flow {
             emit(ViewState.loading())
 
-            val newsSource = rockyMorthy.getData()
+            val newsSource = rockyMorthy.getData(0)
+
+            // 3. Get articles from database [Single source of truth]
+            emit(ViewState.success(newsSource.results))
+        }.catch {
+
+            emit(ViewState.error(it.message.orEmpty()))
+
+        } .flowOn(Dispatchers.IO)  }
+
+    fun getMorphyData(page:Int): Flow<ViewState<List<RockyResponse.Results>>> {
+        return flow {
+            emit(ViewState.loading())
+
+            val newsSource = rockyMorthy.getData(page)
 
             // 3. Get articles from database [Single source of truth]
             emit(ViewState.success(newsSource.results))

@@ -10,7 +10,7 @@ import iamrajendra.github.io.apolis.repo.RockyMorthyRepository
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-    rockyMorthyRepository: RockyMorthyRepository
+    val rockyMorthyRepository: RockyMorthyRepository
 ) : ViewModel(){
 
     private val newsArticles: LiveData<ViewState<List<RockyResponse.Results>>> = rockyMorthyRepository.getMorphyData().asLiveData()
@@ -19,4 +19,5 @@ class MainViewModel @Inject constructor(
      * Return news articles to observeNotNull on the UI.
      */
     fun getNewsArticles(): LiveData<ViewState<List<RockyResponse.Results>>> = newsArticles
+    fun  getRepository():RockyMorthyRepository = rockyMorthyRepository
 }
